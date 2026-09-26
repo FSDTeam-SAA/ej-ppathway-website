@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { MenuIcon, XIcon, SparkleIcon } from "../ui/Icons";
 import { LinkButton } from "../ui/Button";
+import { isPublished } from "../../lib/publicRoutes";
 import { UserMenu, UserMenuMobile, useAuthUser } from "./UserMenu";
 import type { GlobalSections } from "../../lib/types";
 
@@ -16,6 +17,7 @@ export function Header({ global }: { global: GlobalSections }) {
 
   const isAdvisor = user?.role === "advisor";
   const nav = (global.nav || []).filter((item) => {
+    if (!isPublished(item.href)) return false;
     if (!isAdvisor) return true;
     const href = item.href.replace(/\/+$/, "");
     return href !== "/join-as-advisor";

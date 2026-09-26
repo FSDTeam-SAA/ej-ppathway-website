@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { TextArea, TextField, SelectField, Checkbox } from "../../../components/ui/Input";
 import { Combobox } from "../../../components/ui/Combobox";
-import { Button, LinkButton } from "../../../components/ui/Button";
+import { Button } from "../../../components/ui/Button";
 import {
   SparkleIcon,
   MailIcon,
@@ -194,7 +194,6 @@ export default function AdvisorApplyPage() {
   const [agree, setAgree] = useState(false);
   const [intro, setIntro] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
   const [existingApplication, setExistingApplication] = useState<ApplicationInfo | null>(null);
   const [error, setError] = useState("");
   const [onboardingToken, setOnboardingToken] = useState("");
@@ -427,14 +426,10 @@ export default function AdvisorApplyPage() {
       fd.append("baptizedInHolySpirit", baptizedInHolySpirit);
       fd.append("introVideo", intro);
       await api.post("/auth/advisor-apply", fd, { isFormData: true });
-      setExistingApplication({ status: "pending_review", stage: "application" });
-      setSubmitted(true);
+      sessionStorage.setItem("advisor_application_completed", "pending");
+      router.push("/join-as-advisor/apply/thank-you");
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : "Submit failed";
-      if (msg.includes("404") || msg.includes("Not Found")) {
-        setSubmitted(true);
-        return;
-      }
       setError(msg);
       setSubmitting(false);
     }
@@ -776,69 +771,7 @@ export default function AdvisorApplyPage() {
       </div>
     </section>
 
-      {submitted && <ThankYouModal />}
     </>
-  );
-}
-
-function ThankYouModal() {
-  return (
-    <div className="fixed inset-0 z-100 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 sm:p-8 text-center max-h-[92vh] overflow-y-auto">
-        <div className="mx-auto h-16 w-16 rounded-full bg-emerald-500 text-white inline-flex items-center justify-center mb-5">
-          <CheckIcon size={30} />
-        </div>
-        <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Thank You for Applying!</h2>
-        <p className="mt-2 text-sm text-slate-600 leading-relaxed">
-          Your application has been successfully submitted and is now under review by our team. If
-          your application matches our current advisor requirements, we&apos;ll contact you regarding
-          the next stage of the interview process.
-        </p>
-
-        <div className="mt-5 rounded-xl bg-slate-50 border border-slate-100 p-4 text-left">
-          <div className="text-sm font-bold text-slate-900 mb-3">Application Progress</div>
-          <div className="space-y-2.5">
-            <div className="flex items-center gap-2.5 text-sm text-slate-700">
-              <span className="h-5 w-5 rounded-full bg-emerald-500 text-white inline-flex items-center justify-center shrink-0">
-                <CheckIcon size={12} />
-              </span>
-              Application Submitted
-            </div>
-            <div className="flex items-center gap-2.5 text-sm text-slate-700">
-              <span className="h-5 w-5 rounded-full bg-amber-400 text-white inline-flex items-center justify-center shrink-0">
-                <ClockIcon size={11} />
-              </span>
-              Review in Progress
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-3 rounded-xl bg-slate-50 border border-slate-100 px-4 py-3 flex items-center gap-2 text-left text-sm text-slate-600">
-          <ClockIcon size={15} className="text-[#0e7490] shrink-0" />
-          <span>
-            Estimated Review Time: <b className="text-slate-800">3-5 business days</b>
-          </span>
-        </div>
-
-        <p className="mt-3 text-xs text-slate-500 text-left">
-          <b>Note:</b> Please monitor your email and dashboard for updates regarding your
-          application status.
-        </p>
-
-        <div className="mt-5">
-          <LinkButton href="/" variant="outline" size="md" className="w-full">
-            Back to Home
-          </LinkButton>
-        </div>
-
-        <p className="mt-4 text-xs text-slate-500">
-          Questions about your application?{" "}
-          <Link href="/contact" className="text-[#0e7490] font-semibold hover:underline">
-            Contact our team
-          </Link>
-        </p>
-      </div>
-    </div>
   );
 }
 
@@ -1152,26 +1085,6 @@ function applicationStatusMessage(status: string | undefined, copy: AdvisorAppli
   if (status === "awaiting_approval") return "Your signed contract is waiting for admin approval.";
   if (status === "awaiting_submission") return "Your onboarding profile is waiting for submission.";
   return copy.helper?.reviewedLockText;
-}
-
-function ClockIcon({ size = 16, className }: { size?: number; className?: string }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden="true"
-    >
-      <circle cx="12" cy="12" r="10" />
-      <polyline points="12 6 12 12 16 14" />
-    </svg>
-  );
 }
 
 function VideoRequirements({ copy }: { copy: AdvisorApplicationSections }) {

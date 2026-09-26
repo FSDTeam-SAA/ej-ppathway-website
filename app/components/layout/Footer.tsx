@@ -3,6 +3,7 @@ import Image from "next/image";
 import { SocialIcon, SparkleIcon, MailIcon, PhoneIcon } from "../ui/Icons";
 import { MapPin } from "lucide-react";
 import type { GlobalSections } from "../../lib/types";
+import { isPublished } from "../../lib/publicRoutes";
 
 export function Footer({ global }: { global: GlobalSections }) {
   const f = global.footer || {};
@@ -35,7 +36,10 @@ export function Footer({ global }: { global: GlobalSections }) {
             </div>
           </div>
 
-          {(f.columns || []).map((col, i) => (
+          {(f.columns || [])
+            .map((col) => ({ ...col, links: (col.links || []).filter((link) => isPublished(link.href)) }))
+            .filter((col) => col.links.length > 0)
+            .map((col, i) => (
             <div key={i}>
               <div className="text-sm sm:text-base font-semibold text-slate-900 mb-3 sm:mb-4">{col.title}</div>
               <ul className="space-y-2 sm:space-y-2.5">
