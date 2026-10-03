@@ -18,7 +18,7 @@ export default async function AdvisorDetailPage({ params }: { params: Promise<{ 
 
   let advisor: Detail | null = null;
   try {
-    const r = await api.get<Detail>(`/advisors/${id}`, undefined, { revalidate: 60, skipAuth: true });
+    const r = await api.get<Detail>(`/advisors/${id}`, undefined, { revalidate: 0, skipAuth: true });
     advisor = r.data || null;
   } catch {
     advisor = null;
