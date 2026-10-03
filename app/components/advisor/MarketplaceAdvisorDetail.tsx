@@ -42,7 +42,6 @@ export function MarketplaceAdvisorDetail({ advisor, recommended, advisorId, labe
   const rating = profile.avgRating || 0;
   const ratingsCount = profile.ratingsCount || 0;
   const reviewCountLabel = formatReviewCount(ratingsCount);
-  const totalReadings = profile.totalSessions || 0;
   const todaysRange = todaysDisplayRange(profile.weeklySchedule);
   const paragraphs = profileParagraphs(profile);
   const endorsements = endorsementRows(profile, ratingsCount);
@@ -182,10 +181,9 @@ export function MarketplaceAdvisorDetail({ advisor, recommended, advisorId, labe
 
         <section className="mt-4 max-w-[760px]">
           <h2 className="mb-5 text-xl font-bold text-slate-950">About {advisorName}</h2>
-          <InfoLine label="Total Readings" value={totalReadings ? totalReadings.toLocaleString() : "New advisor"} />
           <InfoLine label="Specialties" value={formatList(profile.expertise) || "Spiritual guidance"} />
           <InfoLine label="Tools" value={formatList(profile.styles) || "Intuitive guidance"} />
-          <InfoLine label="Reading Style" value={formatList((profile.styles || []).slice(0, 2)) || "Compassionate"} />
+          <InfoLine label="Prophetic Style" value={formatList((profile.styles || []).slice(0, 2)) || "Compassionate"} />
         </section>
 
         <SectionDivider />
@@ -375,7 +373,7 @@ function endorsementRows(profile: Advisor["profile"], ratingsCount: number) {
 }
 
 function profileParagraphs(profile: Advisor["profile"]) {
-  const text = profile.detailedDescription || profile.bio || "";
+  const text = profile.bio || profile.detailedDescription || "";
   return text
     .split(/\n{2,}|\r?\n/)
     .map((p) => p.trim())
