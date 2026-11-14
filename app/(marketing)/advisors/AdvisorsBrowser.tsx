@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ADVISOR_DISCOVERY_REFRESH } from "../../components/advisor/AdvisorDiscoveryRealtime";
 import { AdvisorCard } from "../../components/cards/AdvisorCard";
 import { AdvisorCardSkeleton } from "../../components/ui/Skeleton";
 import { api } from "../../lib/api";
@@ -57,6 +58,7 @@ export function AdvisorsBrowser({ initialAdvisors, emptyStateText }: Props) {
   const [loading, setLoading] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const firstRender = useRef(true);
+  const requestSequence = useRef(0);
 
   const activeCount = expertise.length + styles.length + connection.length + (sortBy ? 1 : 0);
 
@@ -72,17 +74,27 @@ export function AdvisorsBrowser({ initialAdvisors, emptyStateText }: Props) {
     return q;
   }, [expertise, styles, connection, sortBy]);
 
-  const applyFilters = async () => {
+  const applyFilters = useCallback(async () => {
+    const sequence = ++requestSequence.current;
     setLoading(true);
     try {
       const r = await api.get<Advisor[]>("/advisors/search", query, { skipAuth: true });
-      setAdvisors(r.data || []);
+      if (sequence === requestSequence.current) setAdvisors(r.data || []);
     } catch {
-      setAdvisors([]);
+      if (sequence === requestSequence.current) setAdvisors([]);
     } finally {
-      setLoading(false);
+      if (sequence === requestSequence.current) setLoading(false);
     }
-  };
+  }, [query]);
+
+  useEffect(() => {
+    const refresh = () => { void applyFilters(); };
+    window.addEventListener(ADVISOR_DISCOVERY_REFRESH, refresh);
+    return () => {
+      window.removeEventListener(ADVISOR_DISCOVERY_REFRESH, refresh);
+      requestSequence.current++;
+    };
+  }, [applyFilters]);
 
   // Auto-apply on change (skip first mount so the SSR list stays until filtered).
   useEffect(() => {

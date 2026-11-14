@@ -43,7 +43,7 @@ async function AdvisorsGrid({ emptyStateText }: { emptyStateText?: string }) {
   let advisors: Advisor[] = [];
   try {
     const r = await api.get<Advisor[]>("/advisors/search", { limit: 24 }, {
-      revalidate: 60,
+      revalidate: 0,
       skipAuth: true,
     });
     advisors = r.data || [];

@@ -28,7 +28,7 @@ export default async function AdvisorDetailPage({ params }: { params: Promise<{ 
   // Recommended / similar advisors ("You may also like").
   let recommended: Advisor[] = [];
   try {
-    const rr = await api.get<Advisor[]>(`/advisors/${id}/recommended`, { limit: 4 }, { revalidate: 120, skipAuth: true });
+    const rr = await api.get<Advisor[]>(`/advisors/${id}/recommended`, { limit: 4 }, { revalidate: 0, skipAuth: true });
     recommended = (rr.data || []).filter((a) => a.user?._id && a.user._id !== id).slice(0, 4);
   } catch {
     recommended = [];

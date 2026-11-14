@@ -53,7 +53,7 @@ export function FeaturedAdvisors({ sectionLabel, title, subtitle, viewAllLabel }
 async function FeaturedAdvisorsGrid() {
   let advisors: Advisor[] = [];
   try {
-    const r = await api.get<Advisor[]>("/advisors/featured", { limit: 6 }, { revalidate: 60, skipAuth: true });
+    const r = await api.get<Advisor[]>("/advisors/featured", { limit: 6 }, { revalidate: 0, skipAuth: true });
     advisors = r.data || [];
   } catch {
     advisors = [];
